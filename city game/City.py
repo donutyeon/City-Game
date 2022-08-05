@@ -33,26 +33,34 @@ class Car(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
     
     def droite(self):
+        sleep(0.5)
         self.rect.x += 32
+        startscreen()
         for wall in walls:
             if self.rect.colliderect(wall.rect):
                 self.rect.right = wall.rect.left
   
 
     def gauche(self):
+        sleep(0.5)
         self.rect.x -= 32
+        startscreen()
         for wall in walls:
             if self.rect.colliderect(wall.rect):
                 self.rect.left = wall.rect.right
 
     def avancer(self):
+        sleep(0.5)
         self.rect.y -= 32
+        startscreen()
         for wall in walls:
             if self.rect.colliderect(wall.rect):
                 self.rect.top = wall.rect.bottom
 
     def reculer(self):
+        sleep(0.5)
         self.rect.y += 32
+        startscreen()
         for wall in walls:
             if self.rect.colliderect(wall.rect):
                 self.rect.bottom = wall.rect.top
@@ -185,16 +193,10 @@ while running:
                             compile(text+' ', 'test', 'exec')
                         except Exception as e:
                             print ("Problem: %s" % e)
-                        else: 
-                            instructions = text.split('\n')
+                        else:
+                            writing=False 
                             startscreen()
-                            writing=False
-                            for instruction in instructions:
-                                sleep(0.5)
-                                print(instruction)
-                                exec(compile(instruction +' ', 'test', 'exec'))
-                                sleep(0.5)
-                                startscreen()
+                            exec(compile(text +' ', 'test', 'exec'))
                     if event.type == pygame.QUIT:
                         writing=False
                         running = False
