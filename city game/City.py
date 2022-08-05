@@ -1,7 +1,8 @@
+from time import sleep
 import pygame
 import os
 import sys
-import random
+from Button import Button
 WHITE = (255, 255, 255)
 
 class Car(pygame.sprite.Sprite):
@@ -31,43 +32,30 @@ class Car(pygame.sprite.Sprite):
         # Fetch the rectangle object that has the dimensions of the image.
         self.rect = self.image.get_rect()
     
-    def moveRight(self, pixels):
-        self.rect.x += pixels
+    def droite(self):
+        self.rect.x += 32
         for wall in walls:
             if self.rect.colliderect(wall.rect):
-                if pixels > 0: # Moving right; Hit the left side of the wall
-                    self.rect.right = wall.rect.left
-                if pixels < 0: # Moving left; Hit the right side of the wall
-                    self.rect.left = wall.rect.right
+                self.rect.right = wall.rect.left
+  
 
-    def moveLeft(self, pixels):
-        pixels=-pixels
-        self.rect.x += pixels
+    def gauche(self):
+        self.rect.x -= 32
         for wall in walls:
             if self.rect.colliderect(wall.rect):
-                if pixels > 0: # Moving right; Hit the left side of the wall
-                    self.rect.right = wall.rect.left
-                if pixels < 0: # Moving left; Hit the right side of the wall
-                    self.rect.left = wall.rect.right
+                self.rect.left = wall.rect.right
 
-    def moveForward(self, pixels):
-        pixels=-pixels
-        self.rect.y += pixels
+    def avancer(self):
+        self.rect.y -= 32
         for wall in walls:
             if self.rect.colliderect(wall.rect):
-                if pixels > 0: # Moving down; Hit the top side of the wall
-                    self.rect.bottom = wall.rect.top
-                if pixels < 0: # Moving up; Hit the bottom side of the wall
-                    self.rect.top = wall.rect.bottom
+                self.rect.top = wall.rect.bottom
 
-    def moveBackward(self, pixels):
-        self.rect.y += pixels
+    def reculer(self):
+        self.rect.y += 32
         for wall in walls:
             if self.rect.colliderect(wall.rect):
-                if pixels > 0: # Moving down; Hit the top side of the wall
-                    self.rect.bottom = wall.rect.top
-                if pixels < 0: # Moving up; Hit the bottom side of the wall
-                    self.rect.top = wall.rect.bottom
+                self.rect.bottom = wall.rect.top
 
 
 # Nice class to hold a wall rect
@@ -75,7 +63,50 @@ class Wall(object):
     
     def __init__(self, pos):
         walls.append(self)
-        self.rect = pygame.Rect(pos[0], pos[1], 16, 16)
+        self.rect = pygame.Rect(pos[0], pos[1], 32, 32)
+
+def startscreen():
+    screen = pygame.display.set_mode((32*20, 32*15))
+    screen.fill((0, 0, 0))
+    pygame.display.set_caption("Atteindre l'objectif.")
+    write_button = Button(0,0,pygame.image.load('write_button2.png').convert_alpha(),0.5)
+    clock = pygame.time.Clock()
+    for wall in walls:
+        pygame.draw.rect(screen, (255, 255, 255), wall.rect)
+    pygame.draw.rect(screen, (255, 0, 0), end_rect)
+    pygame.draw.rect(screen, (255, 200, 0), player.rect)
+    write_button.draw(screen)
+    pygame.display.flip()
+    clock.tick(360)
+
+def writingscreen():
+    screen = pygame.display.set_mode((500,500))
+    bgc = [128, 137, 150]
+    color = pygame.Color('black')
+    input_box = pygame.Rect(10,10,480,480)
+    font = pygame.font.Font(None, 32)
+    clock = pygame.time.Clock()
+    pygame.display.set_caption("text editor")
+    screen.fill(bgc)
+    pygame.display.flip()
+
+def blit_text(surface, text, pos, font, color=pygame.Color('black')):
+    words = [word.split(' ') for word in text.splitlines()]  # 2D array where each row is a list of words.
+    space = font.size(' ')[0]  # The width of a space.
+    max_width, max_height = surface.get_size()
+    max_width -= 7
+    x, y = pos
+    for line in words:
+        for word in line:
+            word_surface = font.render(word, 0, color)
+            word_width, word_height = word_surface.get_size()
+            if x + word_width >= max_width:
+                x = pos[0]  # Reset the x.
+                y += word_height  # Start on new row.
+            surface.blit(word_surface, (x, y))
+            x += word_width + space
+        x = pos[0]  # Reset the x.
+        y += word_height  # Start on new row.
 
 # Initialise pygame
 os.environ["SDL_VIDEO_CENTERED"] = "1"
@@ -83,11 +114,12 @@ pygame.init()
  
 # Set up the display
 pygame.display.set_caption("Atteindre l'objectif.")
-screen = pygame.display.set_mode((320, 240))
- 
+screen = pygame.display.set_mode((32*20, 32*15))
+write_button = Button(0,0,pygame.image.load('write_button2.png').convert_alpha(),0.5)
+run_button = Button(450,450,pygame.image.load('run_button.png').convert_alpha(),1)
 clock = pygame.time.Clock()
 walls = [] # List to hold the walls
-player = Car((255, 0, 0),16,16) # Create the player
+player = Car((255, 0, 0),32,32) # Create the player
 level = [
     "WWWWWWWWWWWWWWWWWWWW",
     "W WWW WWW WW WW WW W",
@@ -113,49 +145,87 @@ for row in level:
         if col == "W":
             Wall((x, y))
         if col == "E":
-            end_rect = pygame.Rect(x, y, 16, 16)
+            end_rect = pygame.Rect(x, y, 32, 32)
         if col == "P":
             player.rect.x = x
             player.rect.y = y
-        x += 16
-    y += 16
+        x += 32
+    y += 32
     x = 0
 
 running = True
+
 while running:
-    
+    startscreen()
     clock.tick(60)
-    
     for e in pygame.event.get():
         if e.type == pygame.QUIT:
             running = False
         if e.type == pygame.KEYDOWN and e.key == pygame.K_ESCAPE:
             running = False
- 
-    # Move the player if an arrow key is pressed
-    key = pygame.key.get_pressed()
-    if key[pygame.K_LEFT]:
-        player.moveLeft(16)
-    if key[pygame.K_RIGHT]:
-        player.moveRight(16)
-    if key[pygame.K_UP]:
-        player.moveForward(16)
-    if key[pygame.K_DOWN]:
-        player.moveBackward(16)
+        if write_button.draw(screen):
+            writing= True
+            print("game button")
+            screen = pygame.display.set_mode((500,500))
+            bgc = [128, 137, 150]
+            color = pygame.Color('black')
+            input_box = pygame.Rect(10,10,480,480)
+            font = pygame.font.Font(None, 32)
+            clock = pygame.time.Clock()
+            pygame.display.set_caption("text editor")
+            screen.fill(bgc)
+            pygame.display.flip()
+            text = ''
+            while writing:
+                screen.fill(bgc)
+                run_button.draw(screen)
+                for event in pygame.event.get():
+                    if run_button.draw(screen):
+                        try:
+                            compile(text+' ', 'test', 'exec')
+                        except Exception as e:
+                            print ("Problem: %s" % e)
+                        else: 
+                            instructions = text.split('\n')
+                            startscreen()
+                            writing=False
+                            for instruction in instructions:
+                                sleep(0.5)
+                                print(instruction)
+                                exec(compile(instruction +' ', 'test', 'exec'))
+                                sleep(0.5)
+                                startscreen()
+                    if event.type == pygame.QUIT:
+                        writing=False
+                        running = False
+                    if event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_RETURN:
+                            text += '\n'
+                        elif event.key == pygame.K_BACKSPACE:
+                            text = text[:-1]
+                        elif event.key == pygame.K_TAB:
+                            text += '    '
+                        else:
+                            text += event.unicode
+                    # Render the current text.
+                txt_surface = font.render(text, True, color)
+                # text_rect = txt_surface.get_rect()
+                # Resize the box if the text is too long.
+
+                # width = max(200, txt_surface.get_width()+10)
+                # input_box.w = width
+                # Blit the text.
+                blit_text(screen, text,(input_box.x+5, input_box.y+5), font)
+                #screen.blit(txt_surface, (input_box.x+5, input_box.y+5))
+                # Blit the input_box rect.
+                pygame.draw.rect(screen, color, input_box, 2)
+                pygame.display.flip()
  
     # Just added this to make it slightly fun ;)
     if player.rect.colliderect(end_rect):
         pygame.quit()
         sys.exit()
  
-    # Draw the scene
-    screen.fill((0, 0, 0))
-    for wall in walls:
-        pygame.draw.rect(screen, (255, 255, 255), wall.rect)
-    pygame.draw.rect(screen, (255, 0, 0), end_rect)
-    pygame.draw.rect(screen, (255, 200, 0), player.rect)
-    # gfxdraw.filled_circle(screen, 255, 200, 5, (0,128,0))
-    pygame.display.flip()
     clock.tick(360)
  
 pygame.quit()
