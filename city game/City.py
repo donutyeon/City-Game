@@ -31,6 +31,8 @@ class Car(pygame.sprite.Sprite):
 
         # Fetch the rectangle object that has the dimensions of the image.
         self.rect = self.image.get_rect()
+
+######################################### i imagine we should add the same thing as wall colliding for the traffic lights
     
     def droite(self):
         sleep(0.5)
@@ -73,6 +75,14 @@ class Wall(object):
         walls.append(self)
         self.rect = pygame.Rect(pos[0], pos[1], 32, 32)
 
+class TrafficLight(object):
+    
+    def __init__(self, pos, color="RED"):
+        lights.append(self)
+        self.color = color
+        self.rect = pygame.Rect(pos[0], pos[1], 32, 32)
+
+
 def startscreen():
     screen = pygame.display.set_mode((32*20, 32*15))
     screen.fill((0, 0, 0))
@@ -81,7 +91,15 @@ def startscreen():
     clock = pygame.time.Clock()
     for wall in walls:
         pygame.draw.rect(screen, (255, 255, 255), wall.rect)
-    pygame.draw.rect(screen, (255, 0, 0), end_rect)
+    for light in lights:
+        if light.color == "RED":
+            pygame.draw.rect(screen, (252, 50, 10), light.rect)
+        elif light.color == "GREEN":
+            pygame.draw.rect(screen, (93, 255, 61), light.rect)
+        elif light.color == "YELLOW":
+            pygame.draw.rect(screen, (255, 197, 61), light.rect)
+
+    pygame.draw.rect(screen, (56, 103, 255), end_rect) #changed to blue just not to confuse with the red light
     pygame.draw.rect(screen, (255, 200, 0), player.rect)
     write_button.draw(screen)
     pygame.display.flip()
@@ -127,6 +145,7 @@ write_button = Button(0,0,pygame.image.load('write_button2.png').convert_alpha()
 run_button = Button(450,450,pygame.image.load('run_button.png').convert_alpha(),1)
 clock = pygame.time.Clock()
 walls = [] # List to hold the walls
+lights = [] # List to hold the lights
 player = Car((255, 0, 0),32,32) # Create the player
 level = [
     "WWWWWWWWWWWWWWWWWWWW",
@@ -136,7 +155,7 @@ level = [
     "W WWW WWW WWW WWW WW",
     "W WWW WWW WWW WWW WW",
     "W WWW WWW     WWW  W",
-    "W                  W",
+    "W     R            W",
     "W WWW WWW WW WW WW W",
     "W WWW WWW WW WW WW W",
     "W                  W",
@@ -145,7 +164,7 @@ level = [
     "W               P  W",
     "WWWWWWWWWWWWWWWWWWWW",
 ]
-
+##################################### add an R for red light
 # Parse the level string above. W = wall, E = exit
 x = y = 0
 for row in level:
@@ -157,6 +176,8 @@ for row in level:
         if col == "P":
             player.rect.x = x
             player.rect.y = y
+        if col == "R":
+            TrafficLight((x, y), "GREEN")
         x += 32
     y += 32
     x = 0
