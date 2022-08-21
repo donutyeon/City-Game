@@ -164,7 +164,7 @@ def startscreen():
     running = True
     while running:
         refresh()
-        clock.tick(60)
+        clock.tick(360)
         for e in pygame.event.get():
             if e.type == pygame.QUIT:
                 running = False
