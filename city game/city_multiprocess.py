@@ -3,14 +3,12 @@ import sys
 import pygame
 from time import sleep
 import threading
-
-from City import startscreen
 WHITE = (255, 255, 255)
 
 class Car(pygame.sprite.Sprite):
     #This class represents a car. It derives from the "Sprite" class in Pygame.
 
-    def __init__(self, color, width, height, walls, lights, lock):
+    def __init__(self, color, width, height, lock):
         # Call the parent class (Sprite) constructor
         super().__init__()
 
@@ -24,8 +22,6 @@ class Car(pygame.sprite.Sprite):
         self.width=width
         self.height=height
         self.color = color
-        self.walls=walls
-        self.lights=lights
         self.lock=lock
         # Draw the car (a rectangle!)
         pygame.draw.rect(self.image, self.color, [0, 0, self.width, self.height])
@@ -35,6 +31,10 @@ class Car(pygame.sprite.Sprite):
 
         # Fetch the rectangle object that has the dimensions of the image.
         self.rect = self.image.get_rect()
+    
+    def set_walls_lights(self,walls,lights):
+        self.walls=walls
+        self.lights=lights
 ######################################### i imagine we should add the same thing as wall colliding for the traffic lights
     
     def droite(self):
@@ -93,13 +93,9 @@ class city_logic:
 
     def __init__(self):
         self.instructions=[]
-        self.walls = [] # List to hold the walls
-        self.lights = [] # List to hold the lights
         self.lock = threading.Lock()
-        self.player = Car((255, 0, 0),32,32,self.walls,self.lights,self.lock) # Create the player
+        self.player = Car((255, 0, 0),32,32,self.lock) # Create the player
 
-    def set_end(self,x,y):
-        self.end_rect=pygame.Rect(x, y, 32, 32)
 
     def _loop(self):
         sleep(0.5)
@@ -120,7 +116,9 @@ class city_game:
     def __init__(self):
         self.screen = pygame.display.set_mode((32*20, 32*15))
         self.screen.fill((0, 0, 0))
-        self.logic= city_logic()
+        self.logic= city_logic()        
+        self.walls = [] # List to hold the walls
+        self.lights = [] # List to hold the lights
         # Set up the display
         pygame.display.set_caption("Atteindre l'objectif.")
         self.clock = pygame.time.Clock()
@@ -147,23 +145,18 @@ class city_game:
         for row in level:
             for col in row:
                 if col == "W":
-                    Wall((x, y), self.logic.walls)
+                    Wall((x, y), self.walls)
                 if col == "E":
                     self.end_rect = pygame.Rect(x, y, 32, 32)
-                    self.logic.set_end(x,y)
                 if col == "P":
                     self.logic.player.rect.x = x
                     self.logic.player.rect.y = y
                 if col == "R":
-                    TrafficLight((x, y),self.logic.lights ,"GREEN")
+                    TrafficLight((x, y),self.lights ,"GREEN")
                 x += 32
             y += 32
             x = 0
-        
-        pygame.draw.rect(self.screen, (56, 103, 255), self.end_rect) #changed to blue just not to confuse with the red light
-        pygame.draw.rect(self.screen, (255, 200, 0), self.logic.player.rect)
-        pygame.display.flip()
-        self.clock.tick(360)
+        self.logic.player.set_walls_lights(self.walls,self.lights)
         pygame.init()
         self.window=pygame.display.set_mode((32*20, 32*15))
         self.running=True
@@ -186,23 +179,26 @@ class city_game:
                         self.running = False
                     if e.type == pygame.KEYDOWN and e.key == pygame.K_ESCAPE:
                         self.running = False
-            for wall in self.logic.walls:
-                pygame.draw.rect(self.screen, (255, 255, 255), wall.rect)
-            for light in self.logic.lights:
-                if light.color == "RED":
-                    pygame.draw.rect(self.screen, (252, 50, 10), light.rect)
-                elif light.color == "GREEN":
-                    pygame.draw.rect(self.screen, (93, 255, 61), light.rect)
-                elif light.color == "YELLOW":
-                    pygame.draw.rect(self.screen, (255, 197, 61), light.rect)
-                with self.logic.lock:
-                    self.window.fill((0, 0, 0))
-                    pygame.display.update()
-
-            pygame.draw.rect(self.screen, (56, 103, 255), self.end_rect) #changed to blue just not to confuse with the red light
-            pygame.draw.rect(self.screen, (255, 200, 0), self.logic.player.rect)
-            pygame.display.flip()
-            self.clock.tick(360)
+            with self.logic.lock:
+                self.window.fill((0, 0, 0))
+                for wall in self.walls:
+                    pygame.draw.rect(self.screen, (255, 255, 255), wall.rect)
+                for light in self.lights:
+                    if light.color == "RED":
+                        pygame.draw.rect(self.screen, (252, 50, 10), light.rect)
+                    elif light.color == "GREEN":
+                        pygame.draw.rect(self.screen, (93, 255, 61), light.rect)
+                    elif light.color == "YELLOW":
+                        pygame.draw.rect(self.screen, (255, 197, 61), light.rect)
+                pygame.display.update()
+                pygame.draw.rect(self.screen, (56, 103, 255), self.end_rect) #changed to blue just not to confuse with the red light
+                pygame.draw.rect(self.screen, (255, 200, 0), self.logic.player.rect)
+                pygame.display.flip()
+                self.clock.tick(60)
+            if self.logic.player.rect.colliderect(self.end_rect):
+                pygame.quit()
+                sys.exit()
+        
 if __name__ == '__main__':
     game = city_game()
     game.start()

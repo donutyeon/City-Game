@@ -37,7 +37,7 @@ class Car(pygame.sprite.Sprite):
     def droite(self):
         sleep(0.5)
         self.rect.x += 32
-        refresh()
+        pygame.display.update()
         for wall in walls:
             if self.rect.colliderect(wall.rect):
                 self.rect.right = wall.rect.left
@@ -46,7 +46,7 @@ class Car(pygame.sprite.Sprite):
     def gauche(self):
         sleep(0.5)
         self.rect.x -= 32
-        refresh()
+        pygame.display.update()
         for wall in walls:
             if self.rect.colliderect(wall.rect):
                 self.rect.left = wall.rect.right
@@ -54,7 +54,7 @@ class Car(pygame.sprite.Sprite):
     def avancer(self):
         sleep(0.5)
         self.rect.y -= 32
-        refresh()
+        pygame.display.update()
         for wall in walls:
             if self.rect.colliderect(wall.rect):
                 self.rect.top = wall.rect.bottom
@@ -62,7 +62,7 @@ class Car(pygame.sprite.Sprite):
     def reculer(self):
         sleep(0.5)
         self.rect.y += 32
-        refresh()
+        pygame.display.update()
         for wall in walls:
             if self.rect.colliderect(wall.rect):
                 self.rect.bottom = wall.rect.top
@@ -191,12 +191,11 @@ def startscreen():
         pygame.draw.rect(screen, (56, 103, 255), end_rect) #changed to blue just not to confuse with the red light
         pygame.draw.rect(screen, (255, 200, 0), player.rect)
 
-        while len(instructions)!=0:
-            inst=instructions.pop()
+        while len(instructions)>0:
+            inst=instructions.pop(0)
             print(inst)
             exec(inst)
             
-        
         pygame.display.flip()
         clock.tick(360)
  

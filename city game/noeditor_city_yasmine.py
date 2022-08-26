@@ -149,7 +149,7 @@ class Car(pygame.sprite.Sprite):
     def droite(self):
         sleep(0.5)
         self.rect.x += 32
-        self.startscreen()
+        pygame.display.update()
         for wall in self.walls:
             if self.rect.colliderect(wall.rect):
                 self.rect.right = wall.rect.left
@@ -158,7 +158,7 @@ class Car(pygame.sprite.Sprite):
     def gauche(self):
         sleep(0.5)
         self.rect.x -= 32
-        self.startscreen()
+        pygame.display.update()
         for wall in self.walls:
             if self.rect.colliderect(wall.rect):
                 self.rect.left = wall.rect.right
@@ -166,7 +166,7 @@ class Car(pygame.sprite.Sprite):
     def avancer(self):
         sleep(0.5)
         self.rect.y -= 32
-        self.startscreen()
+        pygame.display.update()
         for wall in self.walls:
             if self.rect.colliderect(wall.rect):
                 self.rect.top = wall.rect.bottom
@@ -174,7 +174,7 @@ class Car(pygame.sprite.Sprite):
     def reculer(self):
         sleep(0.5)
         self.rect.y += 32
-        self.startscreen()
+        pygame.display.update()
         for wall in self.walls:
             if self.rect.colliderect(wall.rect):
                 self.rect.bottom = wall.rect.top

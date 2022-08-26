@@ -1,6 +1,9 @@
 from city_multiprocess import city_game
-import threading 
 game=city_game()
-threading.Thread(target=city_game,args=(),daemon=True).start()
 for i in range (3):
     game.avancer()
+for i in range (11):
+    game.gauche()
+for i in range (7):
+    game.avancer()
+game.start()
