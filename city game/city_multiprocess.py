@@ -1,3 +1,4 @@
+from dis import Instruction
 import os
 import sys
 import pygame
@@ -45,6 +46,12 @@ class Car(pygame.sprite.Sprite):
         for wall in self.walls:
             if self.rect.colliderect(wall.rect):
                 self.rect.right = wall.rect.left
+                print("collided with a wall.")
+        for light in self.lights:
+            if (self.rect.colliderect(light.rect) and light.color == "RED"):
+                self.rect.right = light.rect.left
+                print("cannot run a red light.")
+
   
 
     def gauche(self):
@@ -55,6 +62,11 @@ class Car(pygame.sprite.Sprite):
         for wall in self.walls:
             if self.rect.colliderect(wall.rect):
                 self.rect.left = wall.rect.right
+                print("collided with a wall.")
+        for light in self.lights:
+            if (self.rect.colliderect(light.rect) and light.color == "RED"):
+                self.rect.left = light.rect.right
+                print("cannot run a red light.")
 
     def avancer(self):
         sleep(0.5)
@@ -64,6 +76,11 @@ class Car(pygame.sprite.Sprite):
         for wall in self.walls:
             if self.rect.colliderect(wall.rect):
                 self.rect.top = wall.rect.bottom
+                print("collided with a wall.")
+        for light in self.lights:
+            if (self.rect.colliderect(light.rect) and light.color == "RED"):
+                self.rect.top = light.rect.bottom
+                print("cannot run a red light.")
 
     def reculer(self):
         sleep(0.5)
@@ -73,6 +90,11 @@ class Car(pygame.sprite.Sprite):
         for wall in self.walls:
             if self.rect.colliderect(wall.rect):
                 self.rect.bottom = wall.rect.top
+                print("collided with a wall.")
+        for light in self.lights:
+            if (self.rect.colliderect(light.rect) and light.color == "RED"):
+                self.rect.bottom = light.rect.top
+                print("cannot run a red light.")
 
 
 # Nice class to hold a wall rect
@@ -114,6 +136,7 @@ class city_logic:
 
 class city_game:
     def __init__(self):
+        self.arrive=False
         self.screen = pygame.display.set_mode((32*20, 32*15))
         self.screen.fill((0, 0, 0))
         self.logic= city_logic()        
@@ -152,7 +175,7 @@ class city_game:
                     self.logic.player.rect.x = x
                     self.logic.player.rect.y = y
                 if col == "R":
-                    TrafficLight((x, y),self.lights ,"GREEN")
+                    TrafficLight((x, y),self.lights ,"RED")
                 x += 32
             y += 32
             x = 0
@@ -196,6 +219,12 @@ class city_game:
                 pygame.display.flip()
                 self.clock.tick(60)
             if self.logic.player.rect.colliderect(self.end_rect):
+                self.arrive=True
+                print("you won !")
+                pygame.quit()
+                sys.exit()
+            if ( len(self.logic.instructions) == 0 and  self.arrive == False ):
+                print("game over, you did not arrive to your destination.")
                 pygame.quit()
                 sys.exit()
         
