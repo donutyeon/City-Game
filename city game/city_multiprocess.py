@@ -15,9 +15,9 @@ class Car(pygame.sprite.Sprite):
 
         # Pass in the color of the car, and its x and y position, width and height.
         # Set the background color and set it to be transparent
-        self.image = pygame.Surface([width, height])
-        self.image.fill(WHITE)
-        self.image.set_colorkey(WHITE)
+        self.image = pygame.image.load("car_up.png")
+        #self.image.fill(WHITE)
+        #self.image.set_colorkey(WHITE)
 
         #Initialise attributes of the car.
         self.width=width
@@ -25,7 +25,7 @@ class Car(pygame.sprite.Sprite):
         self.color = color
         self.lock=lock
         # Draw the car (a rectangle!)
-        pygame.draw.rect(self.image, self.color, [0, 0, self.width, self.height])
+        #pygame.draw.rect(self.image, self.color, [0, 0, self.width, self.height])
 
         # Instead we could load a proper picture of a car...
         # self.image = pygame.image.load("car.png").convert_alpha()
@@ -39,6 +39,7 @@ class Car(pygame.sprite.Sprite):
 ######################################### i imagine we should add the same thing as wall colliding for the traffic lights
     
     def droite(self):
+        self.image = pygame.image.load("car_right.png")
         sleep(0.5)
         with self.lock:
             self.rect.x += 32
@@ -55,6 +56,7 @@ class Car(pygame.sprite.Sprite):
   
 
     def gauche(self):
+        self.image = pygame.image.load("car_left.png")
         sleep(0.5)
         with self.lock:
             self.rect.x -= 32
@@ -69,6 +71,7 @@ class Car(pygame.sprite.Sprite):
                 print("cannot run a red light.")
 
     def avancer(self):
+        self.image = pygame.image.load("car_up.png")
         sleep(0.5)
         with self.lock:
             self.rect.y -= 32
@@ -83,6 +86,7 @@ class Car(pygame.sprite.Sprite):
                 print("cannot run a red light.")
 
     def reculer(self):
+        self.image = pygame.image.load("car_down.png")
         sleep(0.5)
         with self.lock:
             self.rect.y += 32
@@ -215,7 +219,7 @@ class city_game:
                         pygame.draw.rect(self.screen, (255, 197, 61), light.rect)
                 pygame.display.update()
                 pygame.draw.rect(self.screen, (56, 103, 255), self.end_rect) #changed to blue just not to confuse with the red light
-                pygame.draw.rect(self.screen, (255, 200, 0), self.logic.player.rect)
+                self.screen.blit(self.logic.player.image,self.logic.player.rect)
                 pygame.display.flip()
                 self.clock.tick(60)
             if self.logic.player.rect.colliderect(self.end_rect):
