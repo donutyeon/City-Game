@@ -1,10 +1,10 @@
-from dis import Instruction
 import os
 import sys
 import pygame
 from time import sleep
 import threading
 WHITE = (255, 255, 255)
+import ctypes
 
 class Car(pygame.sprite.Sprite):
     #This class represents a car. It derives from the "Sprite" class in Pygame.
@@ -14,21 +14,18 @@ class Car(pygame.sprite.Sprite):
         super().__init__()
 
         # Pass in the color of the car, and its x and y position, width and height.
-        # Set the background color and set it to be transparent
-        self.image = pygame.image.load("car_up.png")
-        #self.image.fill(WHITE)
-        #self.image.set_colorkey(WHITE)
-
         #Initialise attributes of the car.
         self.width=width
         self.height=height
         self.color = color
         self.lock=lock
+        self.collided=False
+        self.ran=False
         # Draw the car (a rectangle!)
         #pygame.draw.rect(self.image, self.color, [0, 0, self.width, self.height])
 
         # Instead we could load a proper picture of a car...
-        # self.image = pygame.image.load("car.png").convert_alpha()
+        self.image = pygame.image.load("car_up.png")
 
         # Fetch the rectangle object that has the dimensions of the image.
         self.rect = self.image.get_rect()
@@ -47,11 +44,13 @@ class Car(pygame.sprite.Sprite):
         for wall in self.walls:
             if self.rect.colliderect(wall.rect):
                 self.rect.right = wall.rect.left
-                print("collided with a wall.")
+                self.image = pygame.transform.scale(pygame.image.load("explosion.png").convert_alpha(), (int(64 * 0.5), int(64 * 0.5)))
+                self.collided=True
+                ctypes.windll.user32.MessageBoxW(0, "you ran into a wall, game over.", "Game Over", 0)
         for light in self.lights:
             if (self.rect.colliderect(light.rect) and light.color == "RED"):
                 self.rect.right = light.rect.left
-                print("cannot run a red light.")
+                self.ran=True
 
   
 
@@ -64,11 +63,15 @@ class Car(pygame.sprite.Sprite):
         for wall in self.walls:
             if self.rect.colliderect(wall.rect):
                 self.rect.left = wall.rect.right
-                print("collided with a wall.")
+                self.image = pygame.transform.scale(pygame.image.load("explosion.png").convert_alpha(), (int(64 * 0.5), int(64 * 0.5)))
+                self.collided=True          
+                ctypes.windll.user32.MessageBoxW(0, "you ran into a wall, game over.", "Game Over", 0)
         for light in self.lights:
             if (self.rect.colliderect(light.rect) and light.color == "RED"):
                 self.rect.left = light.rect.right
-                print("cannot run a red light.")
+                self.ran=True
+                
+                
 
     def avancer(self):
         self.image = pygame.image.load("car_up.png")
@@ -79,11 +82,13 @@ class Car(pygame.sprite.Sprite):
         for wall in self.walls:
             if self.rect.colliderect(wall.rect):
                 self.rect.top = wall.rect.bottom
-                print("collided with a wall.")
+                self.image = pygame.transform.scale(pygame.image.load("explosion.png").convert_alpha(), (int(64 * 0.5), int(64 * 0.5)))
+                self.collided=True              
+                ctypes.windll.user32.MessageBoxW(0, "you ran into a wall, game over.", "Game Over", 0)
         for light in self.lights:
             if (self.rect.colliderect(light.rect) and light.color == "RED"):
                 self.rect.top = light.rect.bottom
-                print("cannot run a red light.")
+                self.ran=True
 
     def reculer(self):
         self.image = pygame.image.load("car_down.png")
@@ -94,11 +99,14 @@ class Car(pygame.sprite.Sprite):
         for wall in self.walls:
             if self.rect.colliderect(wall.rect):
                 self.rect.bottom = wall.rect.top
-                print("collided with a wall.")
+                self.image = pygame.transform.scale(pygame.image.load("explosion.png").convert_alpha(), (int(64 * 0.5), int(64 * 0.5)))
+                self.collided=True                
+                ctypes.windll.user32.MessageBoxW(0, "you ran into a wall, game over.", "Game Over", 0)
         for light in self.lights:
             if (self.rect.colliderect(light.rect) and light.color == "RED"):
                 self.rect.bottom = light.rect.top
-                print("cannot run a red light.")
+                self.ran=True
+                
 
 
 # Nice class to hold a wall rect
@@ -110,9 +118,11 @@ class Wall(object):
 
 class TrafficLight(object):
     
-    def __init__(self, pos,lights, color="RED"):
+    def __init__(self, pos,lights, color):
         lights.append(self)
         self.color = color
+        self.x=int(pos[0])
+        self.y=int(pos[1])
         self.rect = pygame.Rect(pos[0], pos[1], 32, 32)
 
 class city_logic:
@@ -121,8 +131,7 @@ class city_logic:
         self.instructions=[]
         self.lock = threading.Lock()
         self.player = Car((255, 0, 0),32,32,self.lock) # Create the player
-
-
+        
     def _loop(self):
         sleep(0.5)
         while True:
@@ -132,6 +141,10 @@ class city_logic:
                     inst=self.instructions.pop(0)
                 print(inst)
                 exec(inst)
+                sleep(0.01)
+                if (self.player.collided or self.player.ran):
+                    self.instructions.clear()
+
 
     def start_loop(self):
         # We spawn a new thread using our _loop method, the loop has no additional arguments,
@@ -156,7 +169,7 @@ class city_game:
             "W    E             W",
             "W WWW WWW WWW WWW WW",
             "W WWW WWW WWW WWW WW",
-            "W WWW WWW     WWW  W",
+            "W WWW WWW WWW WWW  W",
             "W     R            W",
             "W WWW WWW WW WW WW W",
             "W WWW WWW WW WW WW W",
@@ -197,6 +210,28 @@ class city_game:
     def droite(self):
         self.logic.instructions.append("self.player.droite()")
 
+    def isRedLight(self):
+        playerX=self.logic.player.rect.x
+        playerY=self.logic.player.rect.y
+        directions=self.logic.instructions.copy()
+        for direct in directions:
+            if direct=="self.player.avancer()":
+                playerY-=32
+            elif direct=="self.player.reculer()":
+                playerY+=32
+            elif direct=="self.player.gauche()":
+                playerX-=32
+            else:
+                playerX+=32
+        
+        for light in self.lights:
+            if (light.color=="RED" and ((playerX+32==light.x) or (playerX-32==light.x) or (playerY+32==light.y) or (playerY-32==light.y))):
+                print ("light adjacent")
+                return True            
+            else:
+                return False
+        
+
     def start(self):
         pygame.display.update()
         self.logic.start_loop()
@@ -224,13 +259,22 @@ class city_game:
                 self.clock.tick(60)
             if self.logic.player.rect.colliderect(self.end_rect):
                 self.arrive=True
-                print("you won !")
+                ctypes.windll.user32.MessageBoxW(0, "Congratulations ! you got to your destination.", "Game Won", 0)
                 pygame.quit()
                 sys.exit()
             if ( len(self.logic.instructions) == 0 and  self.arrive == False ):
-                print("game over, you did not arrive to your destination.")
-                pygame.quit()
-                sys.exit()
+                sleep(0.5)
+                if self.logic.player.collided:
+                    pygame.quit()
+                    sys.exit()
+                elif self.logic.player.ran:
+                    ctypes.windll.user32.MessageBoxW(0, "you cannot run a red light, game over.", "Game Over", 0)
+                    pygame.quit()
+                    sys.exit()
+                else:
+                    ctypes.windll.user32.MessageBoxW(0, "You did not get to your destination.", "Game Over", 0)
+                    pygame.quit()
+                    sys.exit()
         
 if __name__ == '__main__':
     game = city_game()
