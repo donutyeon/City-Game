@@ -193,7 +193,7 @@ class city_game:
             "WWWWWWWWWWWWWWWWWWWW",
         ]
         ##################################### add an R for red light
-        # Parse the level string above. W = wall, E = exit
+        # Parse the level string above. W = wall, E = exit, -=horizontal route , space=vertical route
         x = y = 0
         for row in level:
             for col in row:
