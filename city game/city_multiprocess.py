@@ -124,6 +124,18 @@ class TrafficLight(object):
         self.x=int(pos[0])
         self.y=int(pos[1])
         self.rect = pygame.Rect(pos[0], pos[1], 32, 32)
+        if color=="RED":
+            self.image=pygame.image.load("lights_red.png")
+        if color=="YELLOW":
+            self.image=pygame.image.load("lights_yellow.png")
+        if color=="GREEN":
+            self.image=pygame.image.load("lights_green.png")
+
+class Tiles(object):
+    def __init__(self,pos,tiles,image):
+        tiles.append(self)
+        self.image=pygame.image.load(image)
+        self.rect=pygame.Rect(pos[0],pos[1],32,32)
 
 class city_logic:
 
@@ -159,6 +171,7 @@ class city_game:
         self.logic= city_logic()        
         self.walls = [] # List to hold the walls
         self.lights = [] # List to hold the lights
+        self.tiles=[] # list to hold the tiles
         # Set up the display
         pygame.display.set_caption("Atteindre l'objectif.")
         self.clock = pygame.time.Clock()
@@ -166,17 +179,17 @@ class city_game:
             "WWWWWWWWWWWWWWWWWWWW",
             "W WWW WWW WW WW WW W",
             "W WWW WWW    WW WW W",
-            "W    E             W",
+            "W----E-------------W",
             "W WWW WWW WWW WWW WW",
             "W WWW WWW WWW WWW WW",
-            "W WWW WWW WWW WWW  W",
-            "W     R            W",
+            "W WWW WWW WWW WWW WW",
+            "W-----R------------W",
             "W WWW WWW WW WW WW W",
             "W WWW WWW WW WW WW W",
-            "W                  W",
-            "W WWW WWW WW WWW WWW",
+            "W------------------W",
+            "W WWWWWWW WW WWW WWW",
             "W         WW WWW WWW",
-            "W               P  W",
+            "W---------------P--W",
             "WWWWWWWWWWWWWWWWWWWW",
         ]
         ##################################### add an R for red light
@@ -192,7 +205,11 @@ class city_game:
                     self.logic.player.rect.x = x
                     self.logic.player.rect.y = y
                 if col == "R":
-                    TrafficLight((x, y),self.lights ,"RED")
+                    TrafficLight((x, y),self.lights ,"YELLOW")
+                if col==' ':
+                    Tiles((x,y),self.tiles,"route_straight.png")
+                if col=='-':
+                    Tiles((x,y),self.tiles,"route_side.png")
                 x += 32
             y += 32
             x = 0
@@ -242,16 +259,14 @@ class city_game:
                     if e.type == pygame.KEYDOWN and e.key == pygame.K_ESCAPE:
                         self.running = False
             with self.logic.lock:
-                self.window.fill((0, 0, 0))
+                self.window.fill((84,90,94))
                 for wall in self.walls:
                     pygame.draw.rect(self.screen, (255, 255, 255), wall.rect)
                 for light in self.lights:
-                    if light.color == "RED":
-                        pygame.draw.rect(self.screen, (252, 50, 10), light.rect)
-                    elif light.color == "GREEN":
-                        pygame.draw.rect(self.screen, (93, 255, 61), light.rect)
-                    elif light.color == "YELLOW":
-                        pygame.draw.rect(self.screen, (255, 197, 61), light.rect)
+                    self.screen.blit(pygame.image.load("route_side.png"),light.rect)
+                    self.screen.blit(light.image,light.rect)
+                for tile in self.tiles:
+                    self.screen.blit(tile.image,tile.rect)
                 pygame.display.update()
                 pygame.draw.rect(self.screen, (56, 103, 255), self.end_rect) #changed to blue just not to confuse with the red light
                 self.screen.blit(self.logic.player.image,self.logic.player.rect)

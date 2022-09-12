@@ -2,7 +2,7 @@ from city_multiprocess import city_game
 game=city_game()
 
 #run this to test if Red Light
-for i in range (4):
+for i in range (3):
     game.avancer()
 for i in range (7):
     game.gauche()
