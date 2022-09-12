@@ -34,42 +34,45 @@ class Car(pygame.sprite.Sprite):
         self.walls=walls
         self.lights=lights
 ######################################### i imagine we should add the same thing as wall colliding for the traffic lights
-    
+    ## moving functions
     def droite(self):
+        #change the sprite
         self.image = pygame.image.load("car_right.png")
         sleep(0.5)
         with self.lock:
             self.rect.x += 32
             pygame.display.update()
         for wall in self.walls:
+            #checking collision with a wall
             if self.rect.colliderect(wall.rect):
                 self.rect.right = wall.rect.left
                 self.image = pygame.transform.scale(pygame.image.load("explosion.png").convert_alpha(), (int(64 * 0.5), int(64 * 0.5)))
                 self.collided=True
                 ctypes.windll.user32.MessageBoxW(0, "you ran into a wall, game over.", "Game Over", 0)
         for light in self.lights:
+            #checking if we ran a red light
             if (self.rect.colliderect(light.rect) and light.color == "RED"):
                 self.rect.right = light.rect.left
                 self.ran=True
 
   
-
+    #same thing as right but with a different direction
     def gauche(self):
         self.image = pygame.image.load("car_left.png")
         sleep(0.5)
-        with self.lock:
+        with self.lock: #we change the coordinates of the player, one tile is 32x32 px, so we move by 32px in the desired direction
             self.rect.x -= 32
             pygame.display.update()
-        for wall in self.walls:
+        for wall in self.walls: #we check everytime if we have collided with a wall during our move
             if self.rect.colliderect(wall.rect):
                 self.rect.left = wall.rect.right
                 self.image = pygame.transform.scale(pygame.image.load("explosion.png").convert_alpha(), (int(64 * 0.5), int(64 * 0.5)))
                 self.collided=True          
-                ctypes.windll.user32.MessageBoxW(0, "you ran into a wall, game over.", "Game Over", 0)
-        for light in self.lights:
-            if (self.rect.colliderect(light.rect) and light.color == "RED"):
+                ctypes.windll.user32.MessageBoxW(0, "you ran into a wall, game over.", "Game Over", 0) #if we did collide, then it's game over
+        for light in self.lights: #checking if we ran a red light
+            if (self.rect.colliderect(light.rect) and light.color == "RED"): 
                 self.rect.left = light.rect.right
-                self.ran=True
+                self.ran=True # we set the boolean to true
                 
                 
 
@@ -108,7 +111,7 @@ class Car(pygame.sprite.Sprite):
                 self.ran=True
                 
 
-
+## the following are objects in the game such as walls and traffic lights
 # Nice class to hold a wall rect
 class Wall(object):
     
@@ -131,6 +134,7 @@ class TrafficLight(object):
         if color=="GREEN":
             self.image=pygame.image.load("lights_green.png")
 
+# the tiles is basically the floor in order to have road sprites
 class Tiles(object):
     def __init__(self,pos,tiles,image):
         tiles.append(self)
@@ -138,7 +142,7 @@ class Tiles(object):
         self.rect=pygame.Rect(pos[0],pos[1],32,32)
 
 class city_logic:
-
+    #make the game run with the instruction list and thread
     def __init__(self):
         self.instructions=[]
         self.lock = threading.Lock()
@@ -163,6 +167,7 @@ class city_logic:
         # We call daemon=True so that the thread dies when main dies
         threading.Thread(target=self._loop,args=(),daemon=True).start()
 
+# the actual class of the game that the user will instenciate, and will generate the city
 class city_game:
     def __init__(self):
         self.arrive=False
@@ -205,7 +210,7 @@ class city_game:
                     self.logic.player.rect.x = x
                     self.logic.player.rect.y = y
                 if col == "R":
-                    TrafficLight((x, y),self.lights ,"YELLOW")
+                    TrafficLight((x, y),self.lights ,"RED")
                 if col==' ':
                     Tiles((x,y),self.tiles,"route_straight.png")
                 if col=='-':
@@ -217,20 +222,26 @@ class city_game:
         pygame.init()
         self.window=pygame.display.set_mode((32*20, 32*15))
         self.running=True
-
+    #this is to clean the code on the user's end, so they can just call the instance of the class and use this method directly
+    #it will add the instruction to the list
     def avancer(self):
         self.logic.instructions.append("self.player.avancer()")
     def reculer(self):
         self.logic.instructions.append("self.player.reculer()")
-    def gauche(self):
+    def gauche(self): 
         self.logic.instructions.append("self.player.gauche()")
     def droite(self):
         self.logic.instructions.append("self.player.droite()")
 
+    #check if the player is currently on a red light
     def isRedLight(self):
         playerX=self.logic.player.rect.x
         playerY=self.logic.player.rect.y
+        # in this part, in order to know whether the player reached a red light or not in the goal of checking it and returning a boolean
+        # we have to virtually run all the instructions in the list, in order to perform a simulation, and get the exact coordinates of the player
+        # at that given time.
         directions=self.logic.instructions.copy()
+        # getting the instructions and counting the X and Y coordinates of the player
         for direct in directions:
             if direct=="self.player.avancer()":
                 playerY-=32
@@ -240,57 +251,66 @@ class city_game:
                 playerX-=32
             else:
                 playerX+=32
-        
+        # now that we have the exact coordinates of the player in that given moment, and check if there is a red light in the same coordinates
         for light in self.lights:
             if (light.color=="RED" and ((playerX+32==light.x) or (playerX-32==light.x) or (playerY+32==light.y) or (playerY-32==light.y))):
                 print ("light adjacent")
+                #we can return the boolean, true if there is a red light, and false if there is not
                 return True            
             else:
                 return False
         
-
+    # run the actual game
     def start(self):
         pygame.display.update()
         self.logic.start_loop()
+        #starting the infinite loop
         while self.running:
             for e in pygame.event.get():
                     if e.type == pygame.QUIT:
                         self.running = False
                     if e.type == pygame.KEYDOWN and e.key == pygame.K_ESCAPE:
                         self.running = False
+            #generate the game screen and city
             with self.logic.lock:
                 self.window.fill((84,90,94))
+                #generate the walls
                 for wall in self.walls:
                     pygame.draw.rect(self.screen, (255, 255, 255), wall.rect)
+                #generate the lights (with a road sprite underneath the light using layering)
                 for light in self.lights:
                     self.screen.blit(pygame.image.load("route_side.png"),light.rect)
                     self.screen.blit(light.image,light.rect)
+                #draw the road sprites
                 for tile in self.tiles:
                     self.screen.blit(tile.image,tile.rect)
-                pygame.display.update()
-                pygame.draw.rect(self.screen, (56, 103, 255), self.end_rect) #changed to blue just not to confuse with the red light
+                #pygame.display.update()   <---- this update was causing flickering and the game runs fine/even better without
+                pygame.draw.rect(self.screen, (56, 103, 255), self.end_rect) #goal tile
                 self.screen.blit(self.logic.player.image,self.logic.player.rect)
                 pygame.display.flip()
                 self.clock.tick(60)
+            #check if player arrived to goal, if yes congratulate them and quit the game
             if self.logic.player.rect.colliderect(self.end_rect):
                 self.arrive=True
                 ctypes.windll.user32.MessageBoxW(0, "Congratulations ! you got to your destination.", "Game Won", 0)
                 pygame.quit()
                 sys.exit()
+            #if all the instructions have been used up and didn't arrive to destinationn
             if ( len(self.logic.instructions) == 0 and  self.arrive == False ):
                 sleep(0.5)
-                if self.logic.player.collided:
+                
+                if self.logic.player.collided: #check if player has collided with a wall, the message box has been coded with the collided function so there is no need to repeat it here
                     pygame.quit()
                     sys.exit()
-                elif self.logic.player.ran:
+                elif self.logic.player.ran:   #check if player ran a red light
                     ctypes.windll.user32.MessageBoxW(0, "you cannot run a red light, game over.", "Game Over", 0)
                     pygame.quit()
                     sys.exit()
-                else:
+                else: #if player didn't collide with anything, but still didn't reach the goal
                     ctypes.windll.user32.MessageBoxW(0, "You did not get to your destination.", "Game Over", 0)
                     pygame.quit()
                     sys.exit()
-        
+                #quit the game when there is a game over
 if __name__ == '__main__':
     game = city_game()
     game.start()

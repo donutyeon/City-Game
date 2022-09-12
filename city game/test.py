@@ -20,6 +20,7 @@ if game.isRedLight():
         game.gauche()
     for i in range(8):
         game.avancer()
+
 game.start()
 
 #run this to run a red light
@@ -39,7 +40,9 @@ for i in range (11):
     game.gauche()
 for i in range (8):
     game.avancer()
+#game.start()
 
 #run this to collide into a wall
 for i in range (4):
     game.avancer()
+
