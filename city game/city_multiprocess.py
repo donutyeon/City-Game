@@ -209,6 +209,7 @@ class city_game:
                     Wall((x, y), self.walls,buildings[rand])
                 if col == "E":
                     self.end_rect = pygame.Rect(x, y, 32, 32)
+                    self.end_image= pygame.image.load("end.png")
                 if col == "P":
                     self.logic.player.rect.x = x
                     self.logic.player.rect.y = y
@@ -288,7 +289,7 @@ class city_game:
                 for tile in self.tiles:
                     self.screen.blit(tile.image,tile.rect)
                 #pygame.display.update()   <---- this update was causing flickering and the game runs fine/even better without
-                pygame.draw.rect(self.screen, (56, 103, 255), self.end_rect) #goal tile
+                self.screen.blit(self.end_image,self.end_rect) #goal tile
                 self.screen.blit(self.logic.player.image,self.logic.player.rect)
                 pygame.display.flip()
                 self.clock.tick(60)
