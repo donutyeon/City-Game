@@ -5,7 +5,8 @@ from time import sleep
 import threading
 WHITE = (255, 255, 255)
 import ctypes
-
+import random
+buildings=[pygame.image.load("building1.png"),pygame.image.load("building2.png"),pygame.image.load("building3.png"),pygame.image.load("building4.png")]
 class Car(pygame.sprite.Sprite):
     #This class represents a car. It derives from the "Sprite" class in Pygame.
 
@@ -115,9 +116,10 @@ class Car(pygame.sprite.Sprite):
 # Nice class to hold a wall rect
 class Wall(object):
     
-    def __init__(self, pos,walls):
+    def __init__(self, pos,walls,image):
         walls.append(self)
         self.rect = pygame.Rect(pos[0], pos[1], 32, 32)
+        self.image=image
 
 class TrafficLight(object):
     
@@ -203,7 +205,8 @@ class city_game:
         for row in level:
             for col in row:
                 if col == "W":
-                    Wall((x, y), self.walls)
+                    rand=random.randint(0,3)
+                    Wall((x, y), self.walls,buildings[rand])
                 if col == "E":
                     self.end_rect = pygame.Rect(x, y, 32, 32)
                 if col == "P":
@@ -276,7 +279,7 @@ class city_game:
                 self.window.fill((84,90,94))
                 #generate the walls
                 for wall in self.walls:
-                    pygame.draw.rect(self.screen, (255, 255, 255), wall.rect)
+                    self.screen.blit(wall.image,wall.rect)
                 #generate the lights (with a road sprite underneath the light using layering)
                 for light in self.lights:
                     self.screen.blit(pygame.image.load("route_side.png"),light.rect)
