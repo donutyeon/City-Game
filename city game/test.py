@@ -46,3 +46,5 @@ for i in range (8):
 for i in range (4):
     game.avancer()
 
+#show the map without the losing messagebox
+game.afficher()

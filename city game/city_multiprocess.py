@@ -187,14 +187,14 @@ class city_game:
             "W WWW WWW WW WW WW W",
             "W WWW WWW    WW WW W",
             "W----E-------------W",
-            "W WWW WWW WWW WWW WW",
+            "W WWW WWW WWWYWWW WW",
             "W WWW WWW WWW WWW WW",
             "W WWW WWW WWW WWW WW",
             "W-----R------------W",
             "W WWW WWW WW WW WW W",
             "W WWW WWW WW WW WW W",
             "W------------------W",
-            "W WWWWWWW WW WWW WWW",
+            "W WWWWWWW WWGWWW WWW",
             "W         WW WWW WWW",
             "W---------------P--W",
             "WWWWWWWWWWWWWWWWWWWW",
@@ -215,6 +215,10 @@ class city_game:
                     self.logic.player.rect.y = y
                 if col == "R":
                     TrafficLight((x, y),self.lights ,"RED")
+                if col == "G":
+                    TrafficLight((x, y),self.lights ,"GREEN")
+                if col == "Y":
+                    TrafficLight((x, y),self.lights ,"YELLOW")
                 if col==' ':
                     Tiles((x,y),self.tiles,"route_straight.png")
                 if col=='-':
@@ -263,7 +267,35 @@ class city_game:
                 return True            
             else:
                 return False
-        
+
+    def afficher(self):
+        pygame.display.update()
+        self.logic.start_loop()
+        #starting the infinite loop
+        while self.running:
+            for e in pygame.event.get():
+                    if e.type == pygame.QUIT:
+                        self.running = False
+                    if e.type == pygame.KEYDOWN and e.key == pygame.K_ESCAPE:
+                        self.running = False
+            #generate the game screen and city
+            with self.logic.lock:
+                self.window.fill((84,90,94))
+                #generate the walls
+                for wall in self.walls:
+                    self.screen.blit(wall.image,wall.rect)
+                #generate the lights (with a road sprite underneath the light using layering)
+                for light in self.lights:
+                    self.screen.blit(light.image,light.rect)
+                #draw the road sprites
+                for tile in self.tiles:
+                    self.screen.blit(tile.image,tile.rect)
+                #pygame.display.update()   <---- this update was causing flickering and the game runs fine/even better without
+                self.screen.blit(self.end_image,self.end_rect) #goal tile
+                self.screen.blit(self.logic.player.image,self.logic.player.rect)
+                pygame.display.flip()
+                self.clock.tick(60)
+                
     # run the actual game
     def start(self):
         pygame.display.update()
@@ -283,7 +315,6 @@ class city_game:
                     self.screen.blit(wall.image,wall.rect)
                 #generate the lights (with a road sprite underneath the light using layering)
                 for light in self.lights:
-                    self.screen.blit(pygame.image.load("route_side.png"),light.rect)
                     self.screen.blit(light.image,light.rect)
                 #draw the road sprites
                 for tile in self.tiles:
