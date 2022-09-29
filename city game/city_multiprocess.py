@@ -265,8 +265,7 @@ class city_game:
                 print ("light adjacent")
                 #we can return the boolean, true if there is a red light, and false if there is not
                 return True            
-            else:
-                return False
+        return False
 
     def afficher(self):
         pygame.display.update()
