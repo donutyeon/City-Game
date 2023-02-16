@@ -195,7 +195,7 @@ class city_game:
             "W WWW WWW WW WW WW W",
             "W------------------W",
             "W WWWWWWW WWGWWW WWW",
-            "W         WW WWW WWW",
+            "W WWWWWWW WW WWW WWW",
             "W---------------P--W",
             "WWWWWWWWWWWWWWWWWWWW",
         ]

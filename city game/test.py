@@ -1,6 +1,5 @@
 from city_multiprocess import city_game
 game=city_game()
-
 #run this to test if Red Light
 for i in range (4):
     game.avancer()
@@ -8,7 +7,7 @@ for i in range (7):
     game.gauche()
 for i in range (3):
     game.avancer()
-for i in range (2):
+for i in range (3):
     game.gauche()
 if game.isRedLight():
     print("light is red")
