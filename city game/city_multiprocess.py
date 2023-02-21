@@ -22,6 +22,8 @@ class Car(pygame.sprite.Sprite):
         self.lock=lock
         self.collided=False
         self.ran=False
+        
+        self.orientation="up"
         # Draw the car (a rectangle!)
         #pygame.draw.rect(self.image, self.color, [0, 0, self.width, self.height])
 
@@ -37,9 +39,49 @@ class Car(pygame.sprite.Sprite):
 ######################################### i imagine we should add the same thing as wall colliding for the traffic lights
     ## moving functions
     def droite(self):
-        #change the sprite
-        self.image = pygame.image.load("game_sprites\car_right.png")
+        if self.orientation == "up":
+            self.orientation="right"
+            self.image = pygame.image.load("game_sprites\car_right.png")
+        elif self.orientation == "right":
+            self.orientation = "down"
+            self.image = pygame.image.load("game_sprites\car_down.png")
+        elif self.orientation == "down":
+            self.orientation = "left"
+            self.image = pygame.image.load("game_sprites\car_left.png")
+        elif self.orientation == "left":
+            self.orientation = "up"
+            self.image = pygame.image.load("game_sprites\car_up.png")
         sleep(0.5)
+
+    def gauche(self):
+        if self.orientation == "up":
+            self.orientation="left"
+            self.image = pygame.image.load("game_sprites\car_left.png")
+        elif self.orientation == "left":
+            self.orientation = "down"
+            self.image = pygame.image.load("game_sprites\car_down.png")
+        elif self.orientation == "down":
+            self.orientation = "right"
+            self.image = pygame.image.load("game_sprites\car_right.png")
+        elif self.orientation == "right":
+            self.orientation = "up"
+            self.image = pygame.image.load("game_sprites\car_up.png")
+        sleep(0.5)
+    
+    
+    def avancer(self):
+        if self.orientation == "up":
+            self.avancer_()
+        elif self.orientation == "right":
+            self.droite_()
+        elif self.orientation == "down":
+            self.reculer_()
+        elif self.orientation == "left":
+            self.gauche_()
+
+    def droite_(self):
+        #change the sprite
+        #self.image = pygame.image.load("game_sprites\car_right.png")
         with self.lock:
             self.rect.x += 32
             pygame.display.update()
@@ -55,12 +97,12 @@ class Car(pygame.sprite.Sprite):
             if (self.rect.colliderect(light.rect) and light.color == "RED"):
                 self.rect.right = light.rect.left
                 self.ran=True
+        sleep(0.5)
 
   
     #same thing as right but with a different direction
-    def gauche(self):
-        self.image = pygame.image.load("game_sprites\car_left.png")
-        sleep(0.5)
+    def gauche_(self):
+        #self.image = pygame.image.load("game_sprites\car_left.png")
         with self.lock: #we change the coordinates of the player, one tile is 32x32 px, so we move by 32px in the desired direction
             self.rect.x -= 32
             pygame.display.update()
@@ -74,12 +116,12 @@ class Car(pygame.sprite.Sprite):
             if (self.rect.colliderect(light.rect) and light.color == "RED"): 
                 self.rect.left = light.rect.right
                 self.ran=True # we set the boolean to true
+        sleep(0.5)
                 
                 
 
-    def avancer(self):
-        self.image = pygame.image.load("game_sprites\car_up.png")
-        sleep(0.5)
+    def avancer_(self):
+        #self.image = pygame.image.load("game_sprites\car_up.png")
         with self.lock:
             self.rect.y -= 32
             pygame.display.update()
@@ -93,10 +135,10 @@ class Car(pygame.sprite.Sprite):
             if (self.rect.colliderect(light.rect) and light.color == "RED"):
                 self.rect.top = light.rect.bottom
                 self.ran=True
-
-    def reculer(self):
-        self.image = pygame.image.load("game_sprites\car_down.png")
         sleep(0.5)
+
+    def reculer_(self):
+        #self.image = pygame.image.load("game_sprites\car_down.png")
         with self.lock:
             self.rect.y += 32
             pygame.display.update()
@@ -110,6 +152,7 @@ class Car(pygame.sprite.Sprite):
             if (self.rect.colliderect(light.rect) and light.color == "RED"):
                 self.rect.bottom = light.rect.top
                 self.ran=True
+        sleep(0.5)
                 
 
 ## the following are objects in the game such as walls and traffic lights
@@ -118,6 +161,8 @@ class Wall(object):
     
     def __init__(self, pos,walls,image):
         walls.append(self)
+        self.x=int(pos[0])
+        self.y=int(pos[1])
         self.rect = pygame.Rect(pos[0], pos[1], 32, 32)
         self.image=image
 
@@ -241,6 +286,41 @@ class city_game:
     def droite(self):
         self.logic.instructions.append("self.player.droite()")
 
+    def directions_predict(self, playerX, playerY):
+        inst=self.logic.instructions.copy()
+        orientation = "up"
+        for instruction in inst:
+            if instruction == "self.player.avancer()":
+                if orientation == "up":
+                    playerY-=32
+                elif orientation == "down":
+                    playerY+=32
+                elif orientation == "left":
+                    playerX-=32
+                elif orientation == "right":
+                    playerX+=32
+            elif instruction == "self.player.gauche()":
+                if orientation == "up":
+                    orientation = "left"
+                elif orientation == "down":
+                    orientation = "right"
+                elif orientation == "left":
+                    orientation = "down"
+                elif orientation == "right":
+                    orientation = "up"
+            elif instruction == "self.player.droite()":
+                if orientation == "up":
+                    orientation = "right"
+                elif orientation == "down":
+                    orientation = "left"
+                elif orientation == "left":
+                    orientation = "up"
+                elif orientation == "right":
+                    orientation = "down"
+        return playerX, playerY, orientation
+            
+
+
     #check if the player is currently on a red light
     def isRedLight(self):
         playerX=self.logic.player.rect.x
@@ -248,21 +328,52 @@ class city_game:
         # in this part, in order to know whether the player reached a red light or not in the goal of checking it and returning a boolean
         # we have to virtually run all the instructions in the list, in order to perform a simulation, and get the exact coordinates of the player
         # at that given time.
-        directions=self.logic.instructions.copy()
+        # directions=self.logic.instructions.copy()
         # getting the instructions and counting the X and Y coordinates of the player
-        for direct in directions:
-            if direct=="self.player.avancer()":
-                playerY-=32
-            elif direct=="self.player.reculer()":
-                playerY+=32
-            elif direct=="self.player.gauche()":
-                playerX-=32
-            else:
-                playerX+=32
+        # for direct in directions:
+        #     if direct=="self.player.avancer()":
+        #         playerY-=32
+        #     elif direct=="self.player.reculer()":
+        #         playerY+=32
+        #     elif direct=="self.player.gauche()":
+        #         playerX-=32
+        #     else:
+        #         playerX+=32
+        playerX, playerY, orientation = self.directions_predict(playerX, playerY)
         # now that we have the exact coordinates of the player in that given moment, and check if there is a red light in the same coordinates
         for light in self.lights:
-            if (light.color=="RED" and ((playerX+32==light.x) or (playerX-32==light.x) or (playerY+32==light.y) or (playerY-32==light.y))):
+            #if (light.color=="RED" and ((playerX+32==light.x) or (playerX-32==light.x) or (playerY+32==light.y) or (playerY-32==light.y))):
+            if (light.color == "RED" and (orientation == "up" and playerY-32==light.y and playerX == light.x) or (orientation == "down" and playerY+32==light.y and playerX == light.x) or (orientation == "left" and playerX-32==light.x and playerY == light.y) or (orientation == "right" and playerX+32==light.x and playerY == light.y)):
                 print ("light adjacent")
+                #we can return the boolean, true if there is a red light, and false if there is not
+                return True            
+        return False
+
+    def isWall(self):
+        playerX=self.logic.player.rect.x
+        playerY=self.logic.player.rect.y
+        # in this part, in order to know whether the player reached a red light or not in the goal of checking it and returning a boolean
+        # we have to virtually run all the instructions in the list, in order to perform a simulation, and get the exact coordinates of the player
+        # at that given time.
+        # directions=self.logic.instructions.copy()
+        # getting the instructions and counting the X and Y coordinates of the player
+        # for direct in directions:
+        #     if direct=="self.player.avancer()":
+        #         playerY-=32
+        #     elif direct=="self.player.reculer()":
+        #         playerY+=32
+        #     elif direct=="self.player.gauche()":
+        #         playerX-=32
+        #     else:
+        #         playerX+=32
+        
+        playerX, playerY,orientation = self.directions_predict(playerX, playerY)
+        # print(playerX, playerY, orientation)
+        # now that we have the exact coordinates of the player in that given moment, and check if there is a red light in the same coordinates
+        for wall in self.walls:
+            if (orientation == "up" and playerY-32==wall.y and playerX == wall.x) or (orientation == "down" and playerY+32==wall.y and playerX == wall.x) or (orientation == "left" and playerX-32==wall.x and playerY == wall.y) or (orientation == "right" and playerX+32==wall.x and playerY == wall.y):
+                print ("wall adjacent")
+                
                 #we can return the boolean, true if there is a red light, and false if there is not
                 return True            
         return False
