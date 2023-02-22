@@ -2,11 +2,9 @@ from city_multiprocess import city_game
 game=city_game()
 #run this to test if Red Light
 #game.afficher()
-
-while(game.isWall() == False):
-    game.avancer()
-game.droite()
-
+# while(game.isWall() == False):
+#     game.avancer()
+# game.droite()
 
 for i in range (3):
     game.avancer()
@@ -17,17 +15,19 @@ game.droite()
 for i in range (3):
     game.avancer()
 game.gauche()
-for i in range (3):
+for i in range (2):
     game.avancer()
 if game.isRedLight():
     print("light is red")
     for i in range (2):
         game.droite()
-    for i in range (3):
-        game.reculer()
+    for i in range (2):
+        game.avancer()
+    game.gauche()
     for i in range(4):
-        game.gauche()
-    for i in range(8):
+        game.avancer()
+    game.gauche()
+    for i in range(5):
         game.avancer()
 
 game.start()
