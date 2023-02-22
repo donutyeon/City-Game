@@ -70,6 +70,7 @@ class Car(pygame.sprite.Sprite):
 ######################################### i imagine we should add the same thing as wall colliding for the traffic lights
     ## moving functions
     def droite(self):
+        '''turns the car to the right'''
         if self.orientation == "up":
             self.orientation="right"
             self.image = pygame.image.load("game_sprites\car_right.png")
@@ -85,6 +86,7 @@ class Car(pygame.sprite.Sprite):
         sleep(0.5)
 
     def gauche(self):
+        '''turns the car to the left'''
         if self.orientation == "up":
             self.orientation="left"
             self.image = pygame.image.load("game_sprites\car_left.png")
@@ -101,6 +103,7 @@ class Car(pygame.sprite.Sprite):
     
     
     def avancer(self):
+        '''moves the car forward in the direction it is facing'''
         if self.orientation == "up":
             self.avancer_()
         elif self.orientation == "right":
@@ -248,6 +251,7 @@ class city_logic:
 # the actual class of the game that the user will instenciate, and will generate the city
 class city_game:
     def __init__(self,level=1):
+        '''initiate the game class with the level number, default level is 1'''
         self.arrive=False
         try:
             self.level=levels[level-1]
@@ -315,12 +319,15 @@ class city_game:
     #this is to clean the code on the user's end, so they can just call the instance of the class and use this method directly
     #it will add the instruction to the list
     def avancer(self):
+        '''moves the car forward in the direction it is facing'''
         self.logic.instructions.append("self.player.avancer()")
-    def reculer(self):
-        self.logic.instructions.append("self.player.reculer()")
-    def gauche(self): 
+    # def reculer(self):
+    #     self.logic.instructions.append("self.player.reculer()")
+    def gauche(self):
+        '''rotates the car to the left'''
         self.logic.instructions.append("self.player.gauche()")
     def droite(self):
+        '''rotates the car to the right'''
         self.logic.instructions.append("self.player.droite()")
 
     def directions_predict(self, playerX, playerY):
@@ -360,6 +367,7 @@ class city_game:
 
     #check if the player is currently on a red light
     def isRedLight(self):
+        '''this method is to check if the player is currently facing a red light or not, and return a boolean'''
         playerX=self.logic.player.rect.x
         playerY=self.logic.player.rect.y
         # in this part, in order to know whether the player reached a red light or not in the goal of checking it and returning a boolean
@@ -387,6 +395,7 @@ class city_game:
         return False
 
     def isWall(self):
+        '''this method is to check if the player is currently facing a wall or not, and return a boolean'''
         playerX=self.logic.player.rect.x
         playerY=self.logic.player.rect.y
         # in this part, in order to know whether the player reached a red light or not in the goal of checking it and returning a boolean
@@ -416,6 +425,7 @@ class city_game:
         return False
 
     def afficher(self):
+        '''this method is to display the chosen map'''
         pygame.display.update()
         self.logic.start_loop()
         #starting the infinite loop
@@ -445,6 +455,7 @@ class city_game:
                 
     # run the actual game
     def start(self):
+        '''this method is to start the game'''
         pygame.display.update()
         self.logic.start_loop()
         #starting the infinite loop
