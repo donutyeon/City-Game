@@ -1,7 +1,7 @@
 from city_multiprocess import city_game
-game=city_game()
+game=city_game(2)
 #run this to test if Red Light
-#game.afficher()
+game.afficher()
 # while(game.isWall() == False):
 #     game.avancer()
 # game.droite()

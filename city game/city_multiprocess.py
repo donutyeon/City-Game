@@ -7,6 +7,37 @@ WHITE = (255, 255, 255)
 import ctypes
 import random
 buildings=[pygame.image.load("game_sprites\_building1.png"),pygame.image.load("game_sprites\_building2.png"),pygame.image.load("game_sprites\_building3.png"),pygame.image.load("game_sprites\_building4.png")]
+level1 = [
+            "WWWWWWWWWWWWWWWWWWWW",
+            "W WWW WWW WW WW WW W",
+            "W WWW WWW    WW WW W",
+            "W----E-------------W",
+            "W WWW WWW WWWYWWW WW",
+            "W WWW WWW WWW WWW WW",
+            "W WWW WWW WWW WWW WW",
+            "W-----R------------W",
+            "W WWW WWW WW WW WW W",
+            "W WWW WWW WW WW WW W",
+            "W------------------W",
+            "W WWWWWWW WWGWWW WWW",
+            "W WWWWWWW WW WWW WWW",
+            "W---------------P--W",
+            "WWWWWWWWWWWWWWWWWWWW",
+        ]
+level2 = [
+    "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+    "WEWWW WWWWWWW WW WWWWW WWW WWW",
+    "W----------------------------W",
+    "W WWW WWW WWW WWGWWWWW WWWWWWW",
+    "W----------------------------W",
+    "WWWWWW WWWWWW WWW WWWWRWWW WWW",
+    "W----------------------------W",
+    "WYWWW WWW WWWRWW WWWGWWW WWW W",
+    "W------------------------G---W",
+    "W WWW WWW WWW WWW WWW WWWPWWWW",
+    "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+]
+levels=[level1,level2]
 class Car(pygame.sprite.Sprite):
     #This class represents a car. It derives from the "Sprite" class in Pygame.
 
@@ -216,9 +247,15 @@ class city_logic:
 
 # the actual class of the game that the user will instenciate, and will generate the city
 class city_game:
-    def __init__(self):
+    def __init__(self,level=1):
         self.arrive=False
-        self.screen = pygame.display.set_mode((32*20, 32*15))
+        try:
+            self.level=levels[level-1]
+        except:
+            ctypes.windll.user32.MessageBoxW(0, "Choose a level between 1 and "+str(len(levels)), "Error", 0)
+        height=len(self.level)
+        width=len(self.level[0])
+        self.screen = pygame.display.set_mode((32*width, 32*height))
         self.screen.fill((0, 0, 0))
         self.logic= city_logic()        
         self.walls = [] # List to hold the walls
@@ -227,27 +264,27 @@ class city_game:
         # Set up the display
         pygame.display.set_caption("Atteindre l'objectif.")
         self.clock = pygame.time.Clock()
-        level = [
-            "WWWWWWWWWWWWWWWWWWWW",
-            "W WWW WWW WW WW WW W",
-            "W WWW WWW    WW WW W",
-            "W----E-------------W",
-            "W WWW WWW WWWYWWW WW",
-            "W WWW WWW WWW WWW WW",
-            "W WWW WWW WWW WWW WW",
-            "W-----R------------W",
-            "W WWW WWW WW WW WW W",
-            "W WWW WWW WW WW WW W",
-            "W------------------W",
-            "W WWWWWWW WWGWWW WWW",
-            "W WWWWWWW WW WWW WWW",
-            "W---------------P--W",
-            "WWWWWWWWWWWWWWWWWWWW",
-        ]
+        # level = [
+        #     "WWWWWWWWWWWWWWWWWWWW",
+        #     "W WWW WWW WW WW WW W",
+        #     "W WWW WWW    WW WW W",
+        #     "W----E-------------W",
+        #     "W WWW WWW WWWYWWW WW",
+        #     "W WWW WWW WWW WWW WW",
+        #     "W WWW WWW WWW WWW WW",
+        #     "W-----R------------W",
+        #     "W WWW WWW WW WW WW W",
+        #     "W WWW WWW WW WW WW W",
+        #     "W------------------W",
+        #     "W WWWWWWW WWGWWW WWW",
+        #     "W WWWWWWW WW WWW WWW",
+        #     "W---------------P--W",
+        #     "WWWWWWWWWWWWWWWWWWWW",
+        # ]
         ##################################### add an R for red light
         # Parse the level string above. W = wall, E = exit, -=horizontal route , space=vertical route
         x = y = 0
-        for row in level:
+        for row in self.level:
             for col in row:
                 if col == "W":
                     rand=random.randint(0,3)
@@ -273,7 +310,7 @@ class city_game:
             x = 0
         self.logic.player.set_walls_lights(self.walls,self.lights)
         pygame.init()
-        self.window=pygame.display.set_mode((32*20, 32*15))
+        self.window=pygame.display.set_mode((32*width, 32*height))
         self.running=True
     #this is to clean the code on the user's end, so they can just call the instance of the class and use this method directly
     #it will add the instruction to the list
