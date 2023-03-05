@@ -1,7 +1,9 @@
 from city_multiprocess import city_game
-game=city_game(2)
+game=city_game(1)
+print('Euclidean distance: ',game.euclidean_distance())
+print('Manhattan distance: ',game.manhattan_distance())
 #run this to test if Red Light
-game.afficher()
+#game.afficher()
 # while(game.isWall() == False):
 #     game.avancer()
 # game.droite()
@@ -27,6 +29,8 @@ if game.isRedLight():
     for i in range(4):
         game.avancer()
     game.gauche()
+    print('Euclidean distance: ',game.euclidean_distance())
+    print('Manhattan distance: ',game.manhattan_distance())
     for i in range(5):
         game.avancer()
 

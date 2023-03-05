@@ -3,6 +3,7 @@ import sys
 import pygame
 from time import sleep
 import threading
+import math
 WHITE = (255, 255, 255)
 import ctypes
 import random
@@ -504,6 +505,23 @@ class city_game:
                     pygame.quit()
                     sys.exit()
                 #quit the game when there is a game over
+
+    def euclidean_distance(self):
+        '''Get the eucledean distance between the player and the goal'''
+        playerX=self.logic.player.rect.x
+        playerY=self.logic.player.rect.y
+        playerX, playerY, orientation = self.directions_predict(playerX, playerY)
+        goalX=self.end_rect.x
+        goalY=self.end_rect.y
+        return math.sqrt((playerX/32-goalX/32)**2+(playerY/32-goalY/32)**2)
+    def manhattan_distance(self):
+        '''Get the manhattan distance between the player and the goal'''
+        playerX=self.logic.player.rect.x
+        playerY=self.logic.player.rect.y
+        playerX, playerY, orientation = self.directions_predict(playerX, playerY)
+        goalX=self.end_rect.x
+        goalY=self.end_rect.y
+        return abs(playerX/32-goalX/32)+abs(playerY/32-goalY/32)
 if __name__ == '__main__':
     game = city_game()
     game.start()
