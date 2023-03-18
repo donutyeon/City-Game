@@ -522,6 +522,14 @@ class city_game:
         goalX=self.end_rect.x
         goalY=self.end_rect.y
         return abs(playerX/32-goalX/32)+abs(playerY/32-goalY/32)
+    def XY_distance(self):
+        '''Get the manhattan distance between the player and the goal'''
+        playerX=self.logic.player.rect.x
+        playerY=self.logic.player.rect.y
+        playerX, playerY, orientation = self.directions_predict(playerX, playerY)
+        goalX=self.end_rect.x
+        goalY=self.end_rect.y
+        return abs(playerX/32-goalX/32),abs(playerY/32-goalY/32)
 if __name__ == '__main__':
     game = city_game()
     game.start()
