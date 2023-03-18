@@ -1,4 +1,4 @@
-from city_multiprocess import city_game
+from city_lab import city_game
 game=city_game(1)
 print('Euclidean distance: ',game.euclidean_distance())
 print('Manhattan distance: ',game.manhattan_distance())
