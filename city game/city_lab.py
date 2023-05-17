@@ -262,7 +262,8 @@ class city_logic:
                 with self.lock:
                     inst=self.instructions.pop(0)
                 print(inst)
-                exec(inst)
+                if inst != 'end':
+                    exec(inst)
                 sleep(0.01)
                 if (self.player.collided or self.player.ran):
                     self.instructions.clear()
@@ -482,6 +483,7 @@ class city_game:
     def start(self):
         '''this method is to start the game'''
         pygame.display.update()
+        self.logic.instructions.append('end')
         self.logic.start_loop()
         #starting the infinite loop
         while self.running:
@@ -514,7 +516,7 @@ class city_game:
                 pygame.quit()
                 sys.exit()
             #if all the instructions have been used up and didn't arrive to destinationn
-            if ( len(self.logic.instructions) == 0 and  self.arrive == False ):
+            if ( len(self.logic.instructions) == 0 and  self.arrive == False):
                 sleep(0.5)
                 
                 if self.logic.player.collided: #check if player has collided with a wall, the message box has been coded with the collided function so there is no need to repeat it here
