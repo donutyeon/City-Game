@@ -40,7 +40,7 @@ level1 = [
             "W WWW WWW WWWYWWW WW",
             "W WWW WWW WWW WWW WW",
             "W WWW WWW WWW WWW WW",
-            "W-----R------------W",
+            "W-----G------------W",
             "W WWW WWW WW WW WW W",
             "W WWW WWW WW WW WW W",
             "W------------------W",
@@ -414,7 +414,7 @@ class city_game:
         # now that we have the exact coordinates of the player in that given moment, and check if there is a red light in the same coordinates
         for light in self.lights:
             #if (light.color=="RED" and ((playerX+32==light.x) or (playerX-32==light.x) or (playerY+32==light.y) or (playerY-32==light.y))):
-            if (light.color == "RED" and (orientation == "up" and playerY-32==light.y and playerX == light.x) or (orientation == "down" and playerY+32==light.y and playerX == light.x) or (orientation == "left" and playerX-32==light.x and playerY == light.y) or (orientation == "right" and playerX+32==light.x and playerY == light.y)):
+            if (light.color == "RED" and ((orientation == "up" and playerY-32==light.y and playerX == light.x) or (orientation == "down" and playerY+32==light.y and playerX == light.x) or (orientation == "left" and playerX-32==light.x and playerY == light.y) or (orientation == "right" and playerX+32==light.x and playerY == light.y))):
                 print ("light adjacent")
                 #we can return the boolean, true if there is a red light, and false if there is not
                 return True            

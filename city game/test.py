@@ -36,6 +36,12 @@ if game.isRedLight():
     print('XY distance: ',game.XY_distance())
     for i in range(5):
         game.avancer()
+else:
+    game.avancer()
+    game.avancer()
+    game.droite()
+    for i in range(5):
+        game.avancer()
 
 game.start()
 
