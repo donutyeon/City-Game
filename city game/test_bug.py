@@ -5,6 +5,5 @@ game=city_game(1)
 print('Euclidean distance: ',game.euclidean_distance())
 print('Manhattan distance: ',game.manhattan_distance())
 print('XY distance: ',game.XY_distance())
-
 game.avancer()
-game.start()
+game.afficher()

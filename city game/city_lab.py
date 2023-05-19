@@ -286,7 +286,7 @@ class city_game:
         height=len(self.level)
         width=len(self.level[0])
         self.screen = pygame.display.set_mode((32*width, 32*height))
-        self.screen.fill((0, 0, 0))
+        self.screen.fill((127, 127, 127))
         self.logic= city_logic()        
         self.walls = [] # List to hold the walls
         self.lights = [] # List to hold the lights
@@ -463,7 +463,7 @@ class city_game:
                         self.running = False
             #generate the game screen and city
             with self.logic.lock:
-                self.window.fill((84,90,94))
+                self.window.fill((127,127,127))
                 #generate the walls
                 for wall in self.walls:
                     self.screen.blit(wall.image,wall.rect)
@@ -494,7 +494,7 @@ class city_game:
                         self.running = False
             #generate the game screen and city
             with self.logic.lock:
-                self.window.fill((84,90,94))
+                self.window.fill((127,127,127))
                 #generate the walls
                 for wall in self.walls:
                     self.screen.blit(wall.image,wall.rect)
