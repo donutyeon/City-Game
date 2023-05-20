@@ -262,7 +262,7 @@ class city_logic:
                 with self.lock:
                     inst=self.instructions.pop(0)
                 print(inst)
-                if inst != 'end':
+                if inst != 'fin':
                     exec(inst)
                 sleep(0.01)
                 if (self.player.collided or self.player.ran):
@@ -392,7 +392,7 @@ class city_game:
 
 
     #check if the player is currently on a red light
-    def isRedLight(self):
+    def estFeuRouge(self):
         '''this method is to check if the player is currently facing a red light or not, and return a boolean'''
         playerX=self.logic.player.rect.x
         playerY=self.logic.player.rect.y
@@ -420,7 +420,7 @@ class city_game:
                 return True            
         return False
 
-    def isWall(self):
+    def estMur(self):
         '''this method is to check if the player is currently facing a wall or not, and return a boolean'''
         playerX=self.logic.player.rect.x
         playerY=self.logic.player.rect.y
@@ -480,10 +480,10 @@ class city_game:
                 self.clock.tick(60)
                 
     # run the actual game
-    def start(self):
+    def lancer(self):
         '''this method is to start the game'''
         pygame.display.update()
-        self.logic.instructions.append('end')
+        self.logic.instructions.append('fin')
         self.logic.start_loop()
         #starting the infinite loop
         while self.running:
@@ -532,7 +532,7 @@ class city_game:
                     sys.exit()
                 #quit the game when there is a game over
 
-    def euclidean_distance(self):
+    def distance_euclidienne(self):
         '''Get the eucledean distance between the player and the goal'''
         playerX=self.logic.player.rect.x
         playerY=self.logic.player.rect.y
@@ -540,7 +540,7 @@ class city_game:
         goalX=self.end_rect.x
         goalY=self.end_rect.y
         return math.sqrt((playerX/32-goalX/32)**2+(playerY/32-goalY/32)**2)
-    def manhattan_distance(self):
+    def distance_manhattan(self):
         '''Get the manhattan distance between the player and the goal'''
         playerX=self.logic.player.rect.x
         playerY=self.logic.player.rect.y
@@ -548,7 +548,7 @@ class city_game:
         goalX=self.end_rect.x
         goalY=self.end_rect.y
         return abs(playerX/32-goalX/32)+abs(playerY/32-goalY/32)
-    def XY_distance(self):
+    def distance_XY(self):
         '''Get the manhattan distance between the player and the goal'''
         playerX=self.logic.player.rect.x
         playerY=self.logic.player.rect.y
@@ -558,5 +558,5 @@ class city_game:
         return abs(playerX/32-goalX/32),abs(playerY/32-goalY/32)
 if __name__ == '__main__':
     game = city_game()
-    game.start()
+    game.lancer()
         
