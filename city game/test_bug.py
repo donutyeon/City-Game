@@ -1,9 +1,20 @@
 from city_lab import city_game
 game=city_game(1)
 
-#Distance at the start of the game
-print('Euclidean distance: ',game.euclidean_distance())
-print('Manhattan distance: ',game.manhattan_distance())
-print('XY distance: ',game.XY_distance())
-game.avancer()
-game.afficher()
+game.gauche()
+for i in range(4):
+        game.avancer()
+game.droite()
+for i in range(6):
+        print(i)
+        game.avancer()
+        if game.isRedLight():
+                game.gauche()
+                game.gauche()
+game.gauche()
+for i in range(10):
+        game.avancer()
+        if(game.isRedLight()):
+                game.gauche()
+                game.gauche()
+game.start()
